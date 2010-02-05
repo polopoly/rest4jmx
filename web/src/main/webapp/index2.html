@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
+    <title>Rest4jmx API</title>
+    <link rel="stylesheet" href="atex.css" type="text/css" />
+  </head>
+  <body>
+    <h1>The rest4jmx service API</h1>
+    <p>The rest4jmx is a simple service that exposes a Java MBeanServer as a restful API with JSON or JSONP as data protocol. With the service is is possible to:</p>
+    <ul>
+      <li>List all domains (a domain is the domain part in an Object Name)</li>
+      <li>List all mbeans (by name) that is available in a domain</li>
+      <li>Get all attributes (with values) for an mbean</li>
+      <li>Get a specific attribute value for an mbean</li>
+    </ul>
+    <p>The service either generates JSON data as application/json or JSONP data as application/x-javascript. To get JSONP use a callback parameter named "callback".</p>
+    <h2>List domains</h2>
+    <p>URL: <tt>mbeans/domain[?callback=FUNCTION_NAME]</tt>, for example <a href="mbeans/domains">mbeans/domains</a></p>
+    <p>Returns an array of domain names, for example:
+      <pre>["JMImplementation","com.sun.management","org.apache.derby","solr","java.lang","java.util.logging","com.polopoly"]</pre></p>
+    <h2>List mbeans for domain</h2>
+    <p>URL: <tt>mbeans/domains/DOMAIN[?callback=FUNCTION_NAME]</tt>, for example <a href="mbeans/domains/java.lang">mbeans/domains/java.lang</a></p>
+    <p>Returns a domain object containing the domain name and a list of mbean names, for example: 
+      <pre>{"domain":"java.lang","mbeans":["java.lang:type=MemoryPool,name=PS Eden Space"]}</pre></p>
+    <h2>Get all attributes (and values) for an mbean</h2>
+    <p>URL: <tt>mbeans/MBEAN_NAME[?callback=FUNCTION_NAME]</tt>, for example <a href="mbeans/com.polopoly:host=pra-desktop,application=indexserver,module=cm,component=modulecmclient,detailLevel=FINE,group=CacheTimer,name=LockService">mbeans/com.polopoly:host=pra-desktop, application=indexserver, module=cm, component=modulecmclient, detailLevel=FINE, group=CacheTimer, name=LockService</a></p>
+    <p>Returns an mbean object containing the name of the mbean and an attribute object containing all attributes and their values, for example: 
+<pre>
+{"name":"com.polopoly:host=pra-desktop,application=indexserver,module=cm,component=modulecmclient,
+         detailLevel=FINE,group=CacheTimer,name=LockService",
+"attributes":{"unlock":"0   0   0ms","getLocks":"0   0   0ms"}}</pre></p>
+    <h2>Get a specific attribute for an mbean</h2>
+    <p>URL: <tt>mbeans/MBEAN_NAME/ATTRIBUTE_NAME[?callback=FUNCTION_NAME]</tt>, for example <a href="mbeans/com.polopoly:host=pra-desktop,application=indexserver,module=cm,component=modulecmclient,detailLevel=FINE,group=CacheTimer,name=LockService/unlock">mbeans/com.polopoly:host=pra-desktop, application=indexserver, module=cm, component=modulecmclient, detailLevel=FINE, group=CacheTimer, name=LockService/unlock</a></p>
+    <p>Returns and attribute object with a value, for example:
+      <pre>
+{"name":"com.polopoly:host=pra-desktop,application=indexserver,module=cm,component=modulecmclient,
+         detailLevel=FINE,group=CacheTimer,name=LockService",
+"attribute":"unlock","value":"0   0   0ms"}
+</pre>
+    </p>
+   <h2>MBean Server Tree viewer</h2>
+    <p>The <a href="jmx.html">MBean tree viewer</a> is both an example and a way to view which mbeans are available.</p>
+  </body>
+</html>

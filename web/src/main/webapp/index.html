@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!--
+/*
+ * Copyright 2010 Polopoly AB (publ).
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
+    <title>Rest4jmx API</title>
+    <link rel="stylesheet" href="atex.css" type="text/css" />
+  </head>
+  <body>
+    <h1>The rest4jmx service API</h1>
+    <p>The rest4jmx is a simple service that exposes a Java MBeanServer as a restful API with JSON or JSONP as data protocol. With the service is is possible to:</p>
+    <ul>
+      <li>List all domains (a domain is the domain part in an Object Name)</li>
+      <li>List all mbeans (by name) that is available in a domain</li>
+      <li>Get all attributes (with values) for an mbean</li>
+      <li>Get a specific attribute value for an mbean</li>
+    </ul>
+    <p>The service either generates JSON data as application/json or JSONP data as application/x-javascript. To get JSONP use a callback parameter named "callback" or make sure the Accept header is set to application/x-javascript (if no callback parameter is given a callback will be done against the method named "callback").</p>
+    <h2>Examples</h2>
+    <p>There are two examples available here.</p>
+    <p>The <a href="jmx.html">MBean Server Tree viewer</a> is both an example and a way to view which mbeans are available.</p>
+    <p>The <a href="demo.html">demo</a> shows how to use the API to plot a data sample.</p>
+    <h2>List domains</h2>
+    <p>URL: <tt>/mbeans/domains[?callback=FUNCTION_NAME]</tt>, for example <a href="mbeans/domains">mbeans/domains</a></p>
+    <p>Returns an array of domain names, for example:
+      <pre>["JMImplementation","com.sun.management","java.lang","java.util.logging"]</pre></p>
+    <h2>List mbeans for domain</h2>
+    <p>URL: <tt>/mbeans/domains/DOMAIN[?callback=FUNCTION_NAME]</tt>, for example <a href="mbeans/domains/java.lang">mbeans/domains/java.lang</a></p>
+    <p>Returns a domain object containing the domain name and a list of mbean names, for example: 
+      <pre>{"domain":"java.lang","mbeans":["java.lang:type=MemoryPool,name=PS Eden Space"]}</pre></p>
+    <h2>Get all attributes (and values) for an mbean</h2>
+    <p>URL: <tt>/mbeans/MBEAN_NAME[?callback=FUNCTION_NAME]</tt>, for example <a href="mbeans/java.lang:type=MemoryPool,name=PS%20Eden%20Space">mbeans/java.lang:type=MemoryPool,name=PS Eden Space</a></p>
+    <p>Returns an mbean object containing the name of the mbean and an attribute object containing all attributes and their values, for example: 
+<pre>
+{"name":"java.lang:type=MemoryPool,name=PS Eden Space","attributes":{"Name":"PS Eden Space","Type":"HEAP","Valid":true}}
+</pre></p>
+    <h2>Get a specific attribute for an mbean</h2>
+    <p>URL: <tt>mbeans/MBEAN_NAME/ATTRIBUTE_NAME[?callback=FUNCTION_NAME]</tt>, for example <a href="mbeans/java.lang:type=MemoryPool,name=PS%20Eden%20Space/Type">mbeans/java.lang:type=MemoryPool,name=PS%20Eden Space/Type</a></p>
+    <p>Returns and attribute object with a value, for example:
+      <pre>
+{"name":"java.lang:type=MemoryPool,name=PS Eden Space","attribute":"Type","value":"HEAP"})
+</pre>
+    </p>
+  </body>
+</html>

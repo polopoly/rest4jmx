@@ -1,0 +1,60 @@
+body {
+    padding: 20px;
+    font-family: Georgia;
+    padding-top: 5px;
+    width: 922px;
+}
+h1,h2,h3,h4,h5 {
+    font-family: Helvetica, Arial;
+    font-weight: bold;
+    letter-spacing: -1px;
+}
+h1 {
+    font-size: 30px;
+    color: #000;
+    margin-bottom: 0;
+}
+
+h2 {
+    font-size: 25px;
+    padding-top: 14px;
+    border-top: 3px solid #ccc;
+}
+
+h2:hover {
+    color: #555;    
+}
+
+li {
+    margin-bottom: 4px;
+}
+
+a {
+    font-family: Andale Mono, "Courier New";
+    font-size: 13px;
+    color: #333;
+    text-decoration: none;
+    border-bottom: 1px dotted #333;
+}
+
+p {
+    line-height: 1.5;
+}
+
+tt, pre {
+    font-family: Andale Mono, "Courier New";
+    font-size: 13px;
+    background: #eee;
+    line-height: 1.5;
+}
+
+tt {
+    padding: 2px;
+    
+}
+
+pre {
+    padding: 4px;
+    border: 1px solid #aaa;
+    
+}
