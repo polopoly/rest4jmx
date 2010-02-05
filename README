@@ -1,0 +1,3 @@
+The rest4jmx is a simple service that exposes a Java MBeanServer as a restful API with JSON or JSONP as data protocol. See index.html for more instructions.
+
+Build with mvn install.
