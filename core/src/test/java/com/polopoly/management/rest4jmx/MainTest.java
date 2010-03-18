@@ -145,11 +145,39 @@ public class MainTest {
         assertEquals("Not correct attribute value " + jo, DEFAULT, jo.get("value"));
     }
     
+    @Test
+    public void getBooleanAttribute() throws JSONException {
+        JSONObject jo = r.path(TESTDOMAIN_NAME_TEST_BEAN + "/So").accept("application/json").get(JSONObject.class);
+        assertEquals("Not correct mbean name", jo.get("name"), TESTDOMAIN_NAME_TEST_BEAN);
+        assertEquals("Not correct attribute" + jo, "So", jo.get("attribute"));
+        assertEquals("Not correct attribute value " + jo, false, jo.get("value"));
+    }
+    
     @Test 
     public void testGetAttributeAsJSONPWithParam() throws JSONException {
         assertCallback(TESTDOMAIN_NAME_TEST_BEAN + "/MyAttr");
     }
     
+    @Test
+    public void putStringAttribute() throws Exception{
+        JSONObject jo = r.path(TESTDOMAIN_NAME_TEST_BEAN + "/MyAttr").type("text/plain").
+            put(JSONObject.class, "newValue");
+        assertEquals("Not correct attribute value " + jo, "newValue", jo.get("value"));
+    }
+    
+    @Test
+    public void putBooleanAttribute() throws Exception{
+        JSONObject jo = r.path(TESTDOMAIN_NAME_TEST_BEAN + "/So").type("text/plain").
+            put(JSONObject.class, "true");
+        assertEquals("Not correct attribute value " + jo, true, jo.get("value"));
+    }
+    
+    @Test
+    public void putIntAttribute() throws Exception{
+        JSONObject jo = r.path(TESTDOMAIN_NAME_TEST_BEAN + "/MyIntAttr").type("text/plain").
+            put(JSONObject.class, "10");
+        assertEquals("Not correct attribute value " + jo, 10, jo.get("value"));
+    }
     
     @BeforeClass
     public static void setUpMBeanServer() throws JMException {
@@ -165,13 +193,40 @@ public class MainTest {
     
     public interface MyAttr {
         public String getMyAttr();
+        public void setMyAttr(String s);
+        
+        public int getMyIntAttr();
+        public void setMyIntAttr(int i);
+        
+        public boolean isSo();
+        public void setSo(boolean b);
     }
     
     public static class TestMBean  implements MyAttr {
         private String myAttr = DEFAULT;
+        private int myIntAttr = 0;
+        private boolean so = false;
 
         public String getMyAttr() {
             return myAttr;
+        }
+        
+        public void setMyAttr(String myAttr) {
+            this.myAttr = myAttr;
+        }
+        
+        public int getMyIntAttr() {
+            return myIntAttr;
+        }
+        
+        public void setMyIntAttr(int myIntAttr) {
+            this.myIntAttr = myIntAttr;
+        }
+        public boolean isSo() {
+            return so;
+        }
+        public void setSo(boolean b) {
+            so = b;
         }
         
     }
