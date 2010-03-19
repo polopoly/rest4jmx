@@ -17,8 +17,10 @@ package com.polopoly.management.rest4jmx;
 import com.google.inject.Inject;
 import com.sun.jersey.api.json.JSONWithPadding;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -130,7 +132,15 @@ public class MBeanService {
         
             JSONObject attValues = new JSONObject();
             for(Attribute a: values.asList()) {
-                attValues.put(a.getName(), getAttributeValueAsJson(a.getValue()));           
+                String n = a.getName();
+                MBeanAttributeInfo ai = getAttributeInfo(name, n);
+                JSONObject att = new JSONObject();
+                att.put("name", n);
+                att.put("value", getAttributeValueAsJson(a.getValue()));
+                att.put("writable", ai.isWritable());
+                att.put("isBoolean", ai.isIs());
+  
+                attValues.put(n, att);           
             }
             
             JSONObject mbean = new JSONObject();
@@ -229,7 +239,12 @@ public class MBeanService {
         if(a == null)
                 return null;
         if (a.getClass().isArray()) {
-            return new JSONArray(Arrays.asList((Object[])a));
+           int l = Array.getLength(a);
+           List<Object> list = new ArrayList<Object>();
+           for (int i = 0; i < l; i++) {
+               list.add(Array.get(a, i));
+           }
+            return new JSONArray(list);
         }
         return a;
     }
@@ -306,6 +321,21 @@ public class MBeanService {
     
     private String getAttributeType (ObjectName name, String attributeName) 
     throws AttributeNotFoundException, IntrospectionException, InstanceNotFoundException, ReflectionException, WebApplicationException {
+        MBeanAttributeInfo attributeInfo =
+            getAttributeInfo(name, attributeName);
+        
+        
+        if (!attributeInfo.isWritable()) {
+            throw new AttributeNotFoundException("Attribute " + attributeName + " is not writable");
+        }
+        
+        return attributeInfo.getType();      
+    }
+
+    private MBeanAttributeInfo getAttributeInfo(ObjectName name,
+        String attributeName) throws AttributeNotFoundException,
+        ReflectionException, IntrospectionException, InstanceNotFoundException
+    {
         if (attributeName == null)
              throw new AttributeNotFoundException("Attribute name was null");
         
@@ -322,13 +352,6 @@ public class MBeanService {
             throw new AttributeNotFoundException("Attribute " + attributeName + " not found");
         }
         
-        if (!attributeInfo.isWritable()) {
-            throw new AttributeNotFoundException("Attribute " + attributeName + " is not writable");
-        }
-        
-        return attributeInfo.getType();
-        
-        
-        
+        return attributeInfo;
     }
 }

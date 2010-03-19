@@ -29,11 +29,12 @@
  */
 
 mbean = function(response) {
-    //    console.log("MBean: " + response.attributes.MBeanServerId);
+        console.log("MBean: " + response.attributes.MBeanServerId);
     var ret = [];
-    $.each(response.attributes, function(attr, value) {
-	    //	    console.log("Attr " + attr);
-	     ret[ret.length] = {"text": attr + " = " + value,
+    $.each(response.attributes, function(attrName, attr) {
+	    	    console.log("Attr " + attr);
+	   	var valueNode = attr.writable ?   "<input type='text' value='" +attr.value + "'/>" : attr.value;
+	     ret[ret.length] = {"text": attr.name + " : " + valueNode, 
 		    "expanded": false,
 		    "hasChildren": false,
 		    "id": attr,
@@ -70,6 +71,7 @@ tranfn = function(response) {
 ;(function($) {
 
 function load(settings, root, child, container) {
+console.log(settings.url);
 	$.getJSON(settings.url, {root: root}, function(response) {
 		//		console.log(root);
 		if (settings.treeTransform) {
@@ -119,11 +121,11 @@ $.fn.treeview = function(settings) {
 		toggle: function() {
 			var $this = $(this);
 			if($this.hasClass("domains")) {
-			    settings.url = "mbeans/domains/" + this.id + "?callback=?",
+			    settings.url = BASE+"domains/" + this.id + "?callback=?",
 			    settings.treeTransform = mbeans;
 			}
 			if($this.hasClass("mbeans")) {
-			    settings.url = "mbeans/" + this.id + "?callback=?",
+			    settings.url = BASE + this.id + "?callback=?",
 			    settings.treeTransform = mbean;
 			}
 			if ($this.hasClass("hasChildren")) {

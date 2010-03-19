@@ -129,7 +129,10 @@ public class MainTest {
     public void getMBean() throws JSONException {
         JSONObject jo = r.path(TESTDOMAIN_NAME_TEST_BEAN).accept("application/json").get(JSONObject.class);
         assertEquals("Not correct mbean name", jo.get("name"), TESTDOMAIN_NAME_TEST_BEAN);
-        assertEquals("Not correct attribute value " + jo, DEFAULT, jo.getJSONObject("attributes").get("MyAttr"));
+        assertEquals("Not correct attribute value " + jo, DEFAULT, jo.getJSONObject("attributes").getJSONObject("MyAttr").get("value"));
+        boolean isWritable = ((Boolean)jo.getJSONObject("attributes").getJSONObject("MyAttr").get("writable")).booleanValue();
+        assertTrue( "Attrubute should be writable " + jo, isWritable);
+        
     }
     
     @Test 
