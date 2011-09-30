@@ -189,6 +189,7 @@ public class MBeanService {
         System.err.println("DEBUG "+objectName + ":" + attribute +"="+value);
         MBeanServer server = getMBeanServer();
         try {
+            value = value.trim();
             ObjectName name = new ObjectName(objectName);
             Attribute att = new Attribute(attribute, fitToAttributeType(name, attribute, value));
             server.setAttribute(name, att);
