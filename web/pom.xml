@@ -48,4 +48,20 @@
 	<scope>provided</scope>
       </dependency>
     </dependencies>
+    <build>
+    	<plugins>
+    		<plugin>
+  		  		<groupId>org.mortbay.jetty</groupId>
+  		  		<artifactId>jetty-maven-plugin</artifactId>
+  		  		<configuration>
+         			<systemProperties>
+            			<systemProperty>
+              				<name>com.sun.management.jmxremote</name>
+               				<value>true</value>
+            			</systemProperty>
+         			</systemProperties>
+         		</configuration>
+        	</plugin>
+    	</plugins>
+    </build>
 </project>

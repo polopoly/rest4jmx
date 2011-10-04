@@ -1,3 +1,17 @@
 The rest4jmx is a simple service that exposes a Java MBeanServer as a restful API with JSON or JSONP as data protocol. See index.html for more instructions.
 
 Build with mvn install.
+
+Developing and running
+
+1) jetty:run
+cd web
+MAVEN_OPTS="-Dcom.sun.management.jmxremote=true" mvn jetty:run
+
+got to localhost:8080
+
+2) excec:exec
+cd core
+mvn exec:exec
+
+GET 'http://localhost:9998/rest4jmx/domains'
