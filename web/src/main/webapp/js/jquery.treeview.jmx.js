@@ -29,24 +29,24 @@
  */
 
 mbean = function(response) {
-    console.log("MBean: " + response.attributes.MBeanServerId);
+    log("MBean: " + response.attributes.MBeanServerId);
     var ret = [];
     $.each(response.attributes, function(attrName, attr) {
-        console.log("Attr " + attr.name);
+        log("Attr " + attr.name);
         var valueNode = attr.writable ?   "<input class='attribute' type='text' name='" +response.name + "/" + attr.name + "' value='" +attr.value + "'/><a href=''><img src='Action-db-update-icon.png'></a></input>" : attr.value;
         ret[ret.length] = {"text": attr.name + " : " + valueNode,
 		    "expanded": false,
 		    "hasChildren": false,
 		    "id": attr,
 			"type": "mbean"};
-	     //    console.log(ret);
+	     //    log(ret);
 	});
 
     return ret;
 }
 
 mbeans = function(response) {
-    //    console.log(response);
+    //    log(response);
 
     return $.map(response.mbeans, function(mbean, i) {
 	    return {"text": mbean,
@@ -58,7 +58,7 @@ mbeans = function(response) {
 }
 
 tranfn = function(response) {
-    //    console.log(response);
+    //    log(response);
 
     return $.map(response, function(domain, i) {
 	    return {"text": domain,
@@ -72,13 +72,13 @@ tranfn = function(response) {
 ;(function($) {
 
 function load(settings, root, child, container) {
-    console.log(settings.url);
+    log(settings.url);
     $.getJSON(settings.url, {root: root}, function(response) {
-	//		console.log(root);
+	//		log(root);
 	if (settings.treeTransform) {
 	    response = settings.treeTransform.call(this, response);
 	}
-		//		console.log(response);
+		//		log(response);
         function createNode(parent) {
 	    var current = $("<li/>").attr("id", this.id || "").html("<span>" + this.text + "</span>").appendTo(parent);
 	    if (this.classes) {
@@ -87,7 +87,7 @@ function load(settings, root, child, container) {
 	    if (this.expanded) {
 		current.addClass("open");
 	    }
-	    //			console.log(this.type);
+	    //			log(this.type);
 	    current.addClass(this.type);
 	    if (this.hasChildren || this.children && this.children.length) {
 		var branch = $("<ul/>").appendTo(current);
