@@ -30,6 +30,7 @@
       <li>List all mbeans (by name) that is available in a domain</li>
       <li>Get all attributes (with values) for an mbean</li>
       <li>Get a specific attribute value for an mbean</li>
+      <li>Put a value on a specific attribute value for an mbean</li>
     </ul>
     <p>The service either generates JSON data as application/json or JSONP data as application/x-javascript. To get JSONP use a callback parameter named "callback" or make sure the Accept header is set to application/x-javascript (if no callback parameter is given a callback will be done against the method named "callback").</p>
     <p>The latest version of rest4jmx is available at <a href="http://github.com/polopoly/rest4jmx">github</a>.</p>
@@ -57,6 +58,41 @@
       <pre>
 {"name":"java.lang:type=MemoryPool,name=PS Eden Space","attribute":"Type","value":"HEAP"})
 </pre>
+   <h2>Put a value on a specific attribute value for an mbean</h2>
+    <p>URL: <tt>mbeans/MBEAN_NAME/ATTRIBUTE_NAME[?callback=FUNCTION_NAME]</tt>, for example <a href="mbeans/java.lang:type=Memory/Verbose">mbeans/java.lang:type=Memory/Verbose</a></p>
+    <p>PUT a text value againts url above. For example to change the Verbose attribute to false with curl:</p>
+    <pre>
+      url -v -i -H "Content-type: text/plain" -X PUT --data-binary "false" \
+ 'http://localhost:8080/mbeans/java.lang:type=Memory/Verbose'
+    </pre>
+     <p>The returned object will look like a normal attribute return:</p>
+      <pre>
+{"name":"java.lang:type=Memory","attribute":"Verbose","value":false}
+      </pre>
+     <p>
+       To invoke the PUT method from jquery the following code might be used:
     </p>
+     <pre>
+        $.ajax({
+              url: "mbeans/java.lang:type=Memory/Verbose",
+              type: "PUT",
+              data: "false",
+              processData: false,
+              contentType: "text/plain",
+              dataType: "json",
+              success: function(msg){
+                 if(typeof(msg.value) != "undefined") {
+                   input.attr("value", msg.value);
+                 }
+                 else {
+                    log("Did not get an attribute JSON back " + msg);
+                 }
+              },
+              error: function(msg, textStatus, errorThrown) {
+                 alert("Could not put attribute for " + url + ": " 
+   + msg.statusText + "(" + msg.status +") "+ textStatus + " " + errorThrown );
+              }
+         });
+     </pre>
   </body>
 </html>

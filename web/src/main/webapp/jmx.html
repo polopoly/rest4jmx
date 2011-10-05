@@ -49,7 +49,7 @@
             var input = $(this).prev();
             var value = input.attr("value");
             var mbeanAttr = input.attr("name");
-            var url = BASE + mbeanAttr;
+            var url = BASE + mbeanAttr + "?callback=?";
             $.ajax({
               url: url,
               type: "PUT",
