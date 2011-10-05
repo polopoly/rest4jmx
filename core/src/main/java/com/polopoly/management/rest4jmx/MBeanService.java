@@ -555,19 +555,19 @@ public class MBeanService
 
     private Response createOperationNotFoundResponse(final String callback)
     {
-        JSONObject okJSONStatus = new JSONObject();
+        JSONObject notFoundJSONStatus = new JSONObject();
 
         try {
-            okJSONStatus.put(OPERATION_RESPONSE_STATUS_PARAMETER_NAME, "OPERATION NOT FOUND");
+            notFoundJSONStatus.put(OPERATION_RESPONSE_STATUS_PARAMETER_NAME, "OPERATION NOT FOUND");
         } catch (JSONException e) {
             LOG.log(Level.WARNING, "Error while creating JSON response!", e);
             throw new WebApplicationException(Response.serverError().entity("Error while creating JSON response!").build());
         }
 
         if (callback != null) {
-            return Response.status(Response.Status.NOT_FOUND).entity((new JSONWithPadding(okJSONStatus, "application/x-javascript"))).build();
+            return Response.status(Response.Status.NOT_FOUND).entity((new JSONWithPadding(notFoundJSONStatus, "application/x-javascript"))).build();
         }
 
-        return Response.status(Response.Status.NOT_FOUND).entity((new JSONWithPadding(okJSONStatus, MediaType.APPLICATION_JSON))).build();
+        return Response.status(Response.Status.NOT_FOUND).entity((new JSONWithPadding(notFoundJSONStatus, MediaType.APPLICATION_JSON))).build();
     }
 }
