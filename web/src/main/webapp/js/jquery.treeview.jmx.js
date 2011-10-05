@@ -1,6 +1,6 @@
 /*
  * Async Treeview 0.1 - Lazy-loading extension for Treeview
- * 
+ *
  * http://bassistance.de/jquery-plugins/jquery-plugin-treeview/
  *
  * Copyright (c) 2007 Jörn Zaefferer
@@ -29,24 +29,25 @@
  */
 
 mbean = function(response) {
-        console.log("MBean: " + response.attributes.MBeanServerId);
+    console.log("MBean: " + response.attributes.MBeanServerId);
     var ret = [];
     $.each(response.attributes, function(attrName, attr) {
-	    	    console.log("Attr " + attr);
-	   	var valueNode = attr.writable ?   "<input type='text' value='" +attr.value + "'/>" : attr.value;
-	     ret[ret.length] = {"text": attr.name + " : " + valueNode, 
+        console.log("Attr " + attr.name);
+        var valueNode = attr.writable ?   "<input class='attribute' type='text' name='" +response.name + "/" + attr.name + "' value='" +attr.value + "'/><a href=''><img src='Action-db-update-icon.png'></a></input>" : attr.value;
+        ret[ret.length] = {"text": attr.name + " : " + valueNode,
 		    "expanded": false,
 		    "hasChildren": false,
 		    "id": attr,
 			"type": "mbean"};
 	     //    console.log(ret);
 	});
+
     return ret;
 }
 
 mbeans = function(response) {
     //    console.log(response);
-    
+
     return $.map(response.mbeans, function(mbean, i) {
 	    return {"text": mbean,
 		    "expanded": false,
@@ -58,7 +59,7 @@ mbeans = function(response) {
 
 tranfn = function(response) {
     //    console.log(response);
-    
+
     return $.map(response, function(domain, i) {
 	    return {"text": domain,
 		    "expanded": false,
@@ -71,41 +72,42 @@ tranfn = function(response) {
 ;(function($) {
 
 function load(settings, root, child, container) {
-console.log(settings.url);
-	$.getJSON(settings.url, {root: root}, function(response) {
-		//		console.log(root);
-		if (settings.treeTransform) {
-		    response = settings.treeTransform.call(this, response);
-		}
+    console.log(settings.url);
+    $.getJSON(settings.url, {root: root}, function(response) {
+	//		console.log(root);
+	if (settings.treeTransform) {
+	    response = settings.treeTransform.call(this, response);
+	}
 		//		console.log(response);
-		function createNode(parent) {
-			var current = $("<li/>").attr("id", this.id || "").html("<span>" + this.text + "</span>").appendTo(parent);
-			if (this.classes) {
-				current.children("span").addClass(this.classes);
-			}
-			if (this.expanded) {
-				current.addClass("open");
-			}
-			//			console.log(this.type);
-			current.addClass(this.type);
-			if (this.hasChildren || this.children && this.children.length) {
-				var branch = $("<ul/>").appendTo(current);
-				if (this.hasChildren) {
-					current.addClass("hasChildren");
-					createNode.call({
-						text:"placeholder",
-						id:"placeholder",
-						children:[]
-					}, branch);
-				}
-				if (this.children && this.children.length) {
-					$.each(this.children, createNode, [branch])
-				}
-			}
+        function createNode(parent) {
+	    var current = $("<li/>").attr("id", this.id || "").html("<span>" + this.text + "</span>").appendTo(parent);
+	    if (this.classes) {
+		current.children("span").addClass(this.classes);
+	    }
+	    if (this.expanded) {
+		current.addClass("open");
+	    }
+	    //			console.log(this.type);
+	    current.addClass(this.type);
+	    if (this.hasChildren || this.children && this.children.length) {
+		var branch = $("<ul/>").appendTo(current);
+		if (this.hasChildren) {
+		    current.addClass("hasChildren");
+		    createNode.call({
+			text:"placeholder",
+			id:"placeholder",
+			children:[]
+		    }, branch);
 		}
-		$.each(response, createNode, [child]);
+		if (this.children && this.children.length) {
+		    $.each(this.children, createNode, [branch])
+			}
+	    }
+	}
+
+	$.each(response, createNode, [child]);
         $(container).treeview({add: child});}
-	    );
+             );
 }
 
 var proxied = $.fn.treeview;

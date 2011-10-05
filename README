@@ -15,3 +15,10 @@ cd core
 mvn exec:exec
 
 GET 'http://localhost:9998/rest4jmx/domains'
+
+
+Get an attribute
+GET 'http://localhost:8080/mbeans/java.lang:type=Memory/Verbose'
+
+Put an attribute value
+curl -v -i -H "Content-type: text/plain" -X PUT --data-binary "false" 'http://localhost:8080/mbeans/java.lang:type=Memory/Verbose'

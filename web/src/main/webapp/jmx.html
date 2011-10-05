@@ -25,7 +25,7 @@
   <link rel="stylesheet" 
 	href="js/treeview/jquery.treeview.css" />
 	
-  <script src="js/treeview/lib/jquery.js" type="text/javascript"></script>
+  <script src="jquery-1.4.1.min.js" type="text/javascript"></script>
 
   <script src="js/treeview/lib/jquery.cookie.js" type="text/javascript"></script>
   <script src="js/treeview/jquery.treeview.js" type="text/javascript"></script>
@@ -33,12 +33,48 @@
   
   
   <script type="text/javascript">
-    var BASE = "http://localhost:9998/rest4jmx/";
+   function log(mgs) {
+      if(windows.console) {
+        console.log(msg);
+      }
+   }
+
+    var BASE = "http://localhost:8080/mbeans/";
     $(document).ready(function(){
-    $("#black").treeview({
-    url: BASE+"domains?callback=?",
-    treeTransform: tranfn
-    })
+        $("#black").treeview({
+            url: BASE+"domains?callback=?",
+            treeTransform: tranfn
+         })
+         $("a").live("click", function() {
+            var input = $(this).prev();
+            var value = input.attr("value");
+            var mbeanAttr = input.attr("name");
+            var url = BASE + mbeanAttr;
+            $.ajax({
+              url: url,
+              type: "PUT",
+              data: value,
+              processData: false,
+              contentType: "text/plain",
+              dataType: "json",
+              success: function(msg){
+                 // XXX Howto type check, like has value and is not null?
+                 if(typeof(msg.value) != "undefined") {
+                   input.attr("value", msg.value);
+                 }
+                 else {
+                    log("Did not get an attribute JSON back " + msg);
+                 }
+              },
+              error: function(msg, textStatus, errorThrown) {
+                 alert("Could not put attribute for " + url + ": " 
+   + msg.statusText + "(" + msg.status +") "+ textStatus + " " + errorThrown );
+              }
+            });
+            return false;
+         });
+
+
     });
   </script>
   
