@@ -42,6 +42,8 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -51,6 +53,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -65,12 +68,35 @@ import com.sun.jersey.api.json.JSONWithPadding;
 @Produces({ MediaType.APPLICATION_JSON, "application/x-javascript" })
 public class MBeanService
 {
+    private static final String INVOKE_ALLOWED_APPLICATION_PARAMETER_NAME = "invokeAllowedApplication";
+    private static final String ALLOW_GLOBAL_INVOKES_INIT_PARAMETER_NAME = "allowCrossApplicationInvokes";
+
     private static final String OPERATION_RESPONSE_STATUS_PARAMETER_NAME = "status";
     private static final String OPERATION_PARAMETERS_PARAMETER_NAME = "params";
 
     private static final Logger LOG = Logger.getLogger(MBeanService.class.getName());
 
     @Inject MBeanServerInstance mbeanServer;
+
+    private boolean allowGlobalInvokes = true;
+    private String invokeAllowedApplication = null;
+
+    public MBeanService()
+    {
+
+    }
+
+    public MBeanService(final @Context ServletContext servletContext,
+                        final @Context ServletConfig servletConfig)
+    {
+        String allowGlobalInvokesString = servletConfig.getInitParameter(ALLOW_GLOBAL_INVOKES_INIT_PARAMETER_NAME);
+
+        if (allowGlobalInvokesString != null) {
+            allowGlobalInvokes = Boolean.valueOf(allowGlobalInvokesString);
+        }
+
+        invokeAllowedApplication = servletConfig.getInitParameter(INVOKE_ALLOWED_APPLICATION_PARAMETER_NAME);
+    }
 
     private MBeanServer getMBeanServer() throws WebApplicationException {
         MBeanServer server = mbeanServer.getMBeanServer();
@@ -283,6 +309,8 @@ public class MBeanService
             MBeanInfo info = server.getMBeanInfo(name);
 
             if (operationExists(info, operationName)) {
+                assertOperatinInvokeAllowedInApplication(name);
+
                 doInvoke(server, info, name, operationName, paramsArray);
                 return createOkResponse(callback);
             }
@@ -292,12 +320,30 @@ public class MBeanService
         } catch (InstanceNotFoundException ne) {
             LOG.log(Level.WARNING, "Mbean not found!", ne);
             throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity("No such mbean '" + objectName + "'!").build());
+        } catch (WebApplicationException wae) {
+            LOG.log(Level.WARNING, "Error while invoking operation!", wae);
+            throw wae;
         } catch (Exception e) {
             LOG.log(Level.WARNING, "Error while invoking operation!", e);
             throw new WebApplicationException(Response.serverError().entity("Error while invoking operation '" + operationName + "'!").build());
         }
 
         return createOperationNotFoundResponse(callback);
+    }
+
+    private void assertOperatinInvokeAllowedInApplication(final ObjectName objectName)
+    {
+        if (!allowGlobalInvokes) {
+            String applicationKeyProperty = objectName.getKeyProperty("application");
+
+            if (applicationKeyProperty != null && !applicationKeyProperty.equals(invokeAllowedApplication)) {
+                String message = "Operation invoke not allowed in application '" + applicationKeyProperty + "'!";
+                Response response = Response.status(Response.Status.FORBIDDEN).entity(message).build();
+
+                LOG.log(Level.WARNING, message);
+                throw new WebApplicationException(response);
+            }
+        }
     }
 
     private void doInvoke(final MBeanServer mbeanServer,
@@ -343,7 +389,8 @@ public class MBeanService
     }
 
     private boolean signatureMatchParameters(final MBeanOperationInfo operationInfo,
-                                             final JSONArray paramsArray) throws JSONException
+                                             final JSONArray paramsArray)
+        throws JSONException
     {
         int paramsArrayLength = (paramsArray != null) ? paramsArray.length() : 0;
         int operationInfoLength = operationInfo.getSignature().length;
