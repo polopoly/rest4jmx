@@ -309,7 +309,7 @@ public class MBeanService
             MBeanInfo info = server.getMBeanInfo(name);
 
             if (operationExists(info, operationName)) {
-                assertOperatinInvokeAllowedInApplication(name);
+                assertOperationInvokeAllowedInApplication(name);
 
                 doInvoke(server, info, name, operationName, paramsArray);
                 return createOkResponse(callback);
@@ -331,7 +331,7 @@ public class MBeanService
         return createOperationNotFoundResponse(callback);
     }
 
-    private void assertOperatinInvokeAllowedInApplication(final ObjectName objectName)
+    private void assertOperationInvokeAllowedInApplication(final ObjectName objectName)
     {
         if (!allowGlobalInvokes) {
             String applicationKeyProperty = objectName.getKeyProperty("application");
@@ -414,6 +414,7 @@ public class MBeanService
                                     final String operationName)
     {
         MBeanOperationInfo[] operations = mbeanInfo.getOperations();
+
         for (MBeanOperationInfo operation : operations) {
             if (operation.getName().equals(operationName)) {
                 return true;
@@ -421,23 +422,6 @@ public class MBeanService
         }
 
         return false;
-    }
-
-    private Response getInvokeResponse(String callback)
-        throws JSONException
-    {
-        String media = MediaType.APPLICATION_JSON;
-
-        JSONObject json = new JSONObject();
-        json.put(OPERATION_RESPONSE_STATUS_PARAMETER_NAME, "OK");
-
-        if (callback != null) {
-            media = "application/x-javascript";
-            return Response.ok(new JSONWithPadding(json, callback), media).build();
-         }
-
-        // Use default media
-        return Response.ok(new JSONWithPadding(json, callback)).build();
     }
 
     private JSONObject getAttributeAsJSON(ObjectName mbean, String attribute) throws JSONException {
