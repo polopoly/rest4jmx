@@ -42,7 +42,6 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -63,11 +62,13 @@ import com.google.inject.Inject;
 import com.sun.jersey.api.json.JSONWithPadding;
 
 @Path("/")
-@Produces({"application/json", "application/x-javascript"})
+@Produces({ MediaType.APPLICATION_JSON, "application/x-javascript" })
 public class MBeanService
 {
     private static final String OPERATION_RESPONSE_STATUS_PARAMETER_NAME = "status";
     private static final String OPERATION_PARAMETERS_PARAMETER_NAME = "params";
+
+    private static final Logger LOG = Logger.getLogger(MBeanService.class.getName());
 
     @Inject MBeanServerInstance mbeanServer;
 
@@ -266,6 +267,7 @@ public class MBeanService
     @Consumes({MediaType.APPLICATION_JSON})
     public Response invokeOperationPost(final @PathParam("objectName") String objectName,
                                         final @PathParam("operationName") String operationName,
+                                        final @QueryParam("callback") String callback,
                                         final String requestBody)
     {
         try {
@@ -282,17 +284,20 @@ public class MBeanService
 
             if (operationExists(info, operationName)) {
                 doInvoke(server, info, name, operationName, paramsArray);
-                return createOkResponse();
+                return createOkResponse(callback);
             }
-        } catch(MalformedObjectNameException me) {
-            throw new WebApplicationException(Response.status(Response.Status.NOT_ACCEPTABLE).entity("Wrong mbean name " + objectName).build());
-        } catch(InstanceNotFoundException ne) {
-            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity("No mbean " + objectName).build());
-        } catch(Exception e) {
-            throw new WebApplicationException(e, 500);
+        } catch (MalformedObjectNameException me) {
+            LOG.log(Level.WARNING, "Malformed object name!", me);
+            throw new WebApplicationException(Response.status(Response.Status.NOT_ACCEPTABLE).entity("Malformed mbean name '" + objectName + "'!").build());
+        } catch (InstanceNotFoundException ne) {
+            LOG.log(Level.WARNING, "Mbean not found!", ne);
+            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity("No such mbean '" + objectName + "'!").build());
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, "Error while invoking operation!", e);
+            throw new WebApplicationException(Response.serverError().entity("Error while invoking operation '" + operationName + "'!").build());
         }
 
-        return createOperationNotFoundResponse();
+        return createOperationNotFoundResponse(callback);
     }
 
     private void doInvoke(final MBeanServer mbeanServer,
@@ -530,31 +535,39 @@ public class MBeanService
         return attributeInfo;
     }
 
-    private Response createOkResponse()
+    private Response createOkResponse(final String callback)
     {
         JSONObject okJSONStatus = new JSONObject();
 
         try {
             okJSONStatus.put(OPERATION_RESPONSE_STATUS_PARAMETER_NAME, "OK");
         } catch (JSONException e) {
-            Logger.getLogger(getClass().getName()).log(Level.WARNING, "Error while creating JSON response!", e);
+            LOG.log(Level.WARNING, "Error while creating JSON response!", e);
             throw new WebApplicationException(Response.serverError().entity("Error while creating JSON response!").build());
         }
 
-        return Response.status(HttpServletResponse.SC_OK).entity(okJSONStatus).build();
+        if (callback != null) {
+            return Response.ok(new JSONWithPadding(okJSONStatus, callback), "application/x-javascript").build();
+        }
+
+        return Response.ok(new JSONWithPadding(okJSONStatus, MediaType.APPLICATION_JSON)).build();
     }
 
-    private Response createOperationNotFoundResponse()
+    private Response createOperationNotFoundResponse(final String callback)
     {
-        JSONObject operationNotFoundJSONStatus = new JSONObject();
+        JSONObject okJSONStatus = new JSONObject();
 
         try {
-            operationNotFoundJSONStatus.put(OPERATION_RESPONSE_STATUS_PARAMETER_NAME, "OPERATION NOT FOUND");
+            okJSONStatus.put(OPERATION_RESPONSE_STATUS_PARAMETER_NAME, "OPERATION NOT FOUND");
         } catch (JSONException e) {
-            Logger.getLogger(getClass().getName()).log(Level.WARNING, "Error while creating JSON response!", e);
+            LOG.log(Level.WARNING, "Error while creating JSON response!", e);
             throw new WebApplicationException(Response.serverError().entity("Error while creating JSON response!").build());
         }
 
-        return Response.status(HttpServletResponse.SC_NOT_FOUND).entity(operationNotFoundJSONStatus).build();
+        if (callback != null) {
+            return Response.status(Response.Status.NOT_FOUND).entity((new JSONWithPadding(okJSONStatus, "application/x-javascript"))).build();
+        }
+
+        return Response.status(Response.Status.NOT_FOUND).entity((new JSONWithPadding(okJSONStatus, MediaType.APPLICATION_JSON))).build();
     }
 }
