@@ -494,15 +494,24 @@ public class MBeanService
         return null;
     }
 
-    private Class getClassForType(String type) throws ClassNotFoundException  {
+    private Class getClassForType(String type)
+        throws ClassNotFoundException
+    {
         Class typeClass = getWrapperClassForPrimitiveType(type);
-        if(typeClass == null) {
-                try {
-                    typeClass = Thread.currentThread().getContextClassLoader().loadClass(type);
-                } catch (ClassNotFoundException e) {
-                    return Class.forName(type);
-                }
+
+        if (typeClass == null) {
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
+            try {
+                typeClass = classLoader.loadClass(type);
+            } catch (ClassNotFoundException e) {
+                // JDK6 forbids loading of array types by ClassLoader.loadClass(...).
+                // See http://bugs.sun.com/view_bug.do?bug_id=6434149
+
+                typeClass = Class.forName(type, false, classLoader);
+            }
         }
+
         return typeClass;
     }
 
