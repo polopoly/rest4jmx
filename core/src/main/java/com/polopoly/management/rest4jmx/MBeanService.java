@@ -401,7 +401,7 @@ public class MBeanService
 
         if (paramsArray != null && paramsArray.length() > 0) {
             for (int i = 0; i < paramsArray.length(); i++) {
-                if (!operationInfo.getSignature()[i].getType().equals(paramsArray.get(i).getClass().getCanonicalName())) {
+                if (!operationInfo.getSignature()[i].getType().equals(paramsArray.get(i).getClass().getName())) {
                     return false;
                 }
             }
