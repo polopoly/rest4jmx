@@ -568,31 +568,31 @@ public class MBeanService
 
     private Response createOkResponse(final String callback)
     {
-        JSONObject okJSONStatus = new JSONObject();
+        JSONObject status = new JSONObject();
         String mediaType = (callback == null) ? MediaType.APPLICATION_JSON : "application/x-javascript";
 
         try {
-            okJSONStatus.put(OPERATION_RESPONSE_STATUS_PARAMETER_NAME, "OK");
+            status.put(OPERATION_RESPONSE_STATUS_PARAMETER_NAME, "OK");
         } catch (JSONException e) {
             LOG.log(Level.WARNING, "Error while creating JSON response!", e);
             throw new WebApplicationException(Response.serverError().entity("Error while creating JSON response!").build());
         }
 
-        return Response.status(Response.Status.NOT_FOUND).entity((new JSONWithPadding(notFoundJSONStatus, mediaType))).build();
+        return Response.status(Response.Status.NOT_FOUND).entity((new JSONWithPadding(status, mediaType))).build();
     }
 
     private Response createOperationNotFoundResponse(final String callback)
     {
-        JSONObject notFoundJSONStatus = new JSONObject();
+        JSONObject status = new JSONObject();
         String mediaType = (callback == null) ? MediaType.APPLICATION_JSON : "application/x-javascript";
 
         try {
-            notFoundJSONStatus.put(OPERATION_RESPONSE_STATUS_PARAMETER_NAME, "OPERATION NOT FOUND");
+            status.put(OPERATION_RESPONSE_STATUS_PARAMETER_NAME, "OPERATION NOT FOUND");
         } catch (JSONException e) {
             LOG.log(Level.WARNING, "Error while creating JSON response!", e);
             throw new WebApplicationException(Response.serverError().entity("Error while creating JSON response!").build());
         }
 
-        return Response.status(Response.Status.NOT_FOUND).entity((new JSONWithPadding(notFoundJSONStatus, mediaType))).build();
+        return Response.status(Response.Status.NOT_FOUND).entity((new JSONWithPadding(status, mediaType))).build();
     }
 }
