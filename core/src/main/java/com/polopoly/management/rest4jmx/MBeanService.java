@@ -569,6 +569,7 @@ public class MBeanService
     private Response createOkResponse(final String callback)
     {
         JSONObject okJSONStatus = new JSONObject();
+        String mediaType = (callback == null) ? MediaType.APPLICATION_JSON : "application/x-javascript";
 
         try {
             okJSONStatus.put(OPERATION_RESPONSE_STATUS_PARAMETER_NAME, "OK");
@@ -577,16 +578,13 @@ public class MBeanService
             throw new WebApplicationException(Response.serverError().entity("Error while creating JSON response!").build());
         }
 
-        if (callback != null) {
-            return Response.ok(new JSONWithPadding(okJSONStatus, callback), "application/x-javascript").build();
-        }
-
-        return Response.ok(new JSONWithPadding(okJSONStatus, MediaType.APPLICATION_JSON)).build();
+        return Response.status(Response.Status.NOT_FOUND).entity((new JSONWithPadding(notFoundJSONStatus, mediaType))).build();
     }
 
     private Response createOperationNotFoundResponse(final String callback)
     {
         JSONObject notFoundJSONStatus = new JSONObject();
+        String mediaType = (callback == null) ? MediaType.APPLICATION_JSON : "application/x-javascript";
 
         try {
             notFoundJSONStatus.put(OPERATION_RESPONSE_STATUS_PARAMETER_NAME, "OPERATION NOT FOUND");
@@ -595,10 +593,6 @@ public class MBeanService
             throw new WebApplicationException(Response.serverError().entity("Error while creating JSON response!").build());
         }
 
-        if (callback != null) {
-            return Response.status(Response.Status.NOT_FOUND).entity((new JSONWithPadding(notFoundJSONStatus, "application/x-javascript"))).build();
-        }
-
-        return Response.status(Response.Status.NOT_FOUND).entity((new JSONWithPadding(notFoundJSONStatus, MediaType.APPLICATION_JSON))).build();
+        return Response.status(Response.Status.NOT_FOUND).entity((new JSONWithPadding(notFoundJSONStatus, mediaType))).build();
     }
 }
