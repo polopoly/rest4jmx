@@ -33,15 +33,30 @@ mbean = function(response) {
     var ret = [];
     $.each(response.attributes, function(attrName, attr) {
         log("Attr " + attr.name);
-        var valueNode = attr.writable ?   "<input class='attribute' type='text' name='" +response.name + "/" + attr.name + "' value='" +attr.value + "'/><a href=''><img src='Action-db-update-icon.png'></a></input>" : attr.value;
+        var valueNode = attr.writable ?   "<input class='attribute' type='text' name='" +response.name + "/" + attr.name + "' value='" +attr.value + "'/><a class='attribute' href=''><img src='Action-db-update-icon.png'></a></input>" : attr.value;
         ret[ret.length] = {"text": attr.name + " : " + valueNode,
-		    "expanded": false,
-		    "hasChildren": false,
-		    "id": attr,
-			"type": "mbean"};
+		           "expanded": false,
+		           "hasChildren": false,
+		           "id": attr,
+                           "type": "mbean"};
 	     //    log(ret);
 	});
+    $.each(response.operations, function(index, op) {
+        log("Oper " + op.op);
+        var operNode = "<span>";
+        $.each(op.params, function(i, p) {
+            operNode += "<input type='text'>";
+        });
+        operNode += "</span>";
+        operNode += "<a class='operation' name='" + response.name + "/ops/"+
+            op.name + "' href=''><img src='Action-db-update-icon.png'></a>";
+        ret[ret.length] = {"text": op.operation + " : " + operNode,
+		           "expanded": false,
+		           "hasChildren": false,
+		           "id": op.operation,
+                           "type": "mbean"};
 
+    });
     return ret;
 }
 

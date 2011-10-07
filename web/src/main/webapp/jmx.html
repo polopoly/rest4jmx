@@ -45,7 +45,7 @@
             url: BASE+"domains?callback=?",
             treeTransform: tranfn
          })
-         $("a").live("click", function() {
+         $("a.attribute").live("click", function() {
             var input = $(this).prev();
             var value = input.attr("value");
             var mbeanAttr = input.attr("name");
@@ -71,6 +71,37 @@
    + msg.statusText + "(" + msg.status +") "+ textStatus + " " + errorThrown );
               }
             });
+            return false;
+         });
+         $("a.operation").live("click", function() {
+            var a = $(this);
+            var oper = a.attr("name");
+            log("Operation " + oper);
+            var params = [];
+            var span = a.prev();
+            var children = span.children("input");
+            $.each(children, function(i, field) {
+                log("Field " + field.value);
+                params[i] = field.value; 
+            });
+            var url = BASE + oper + "?callback=?";
+            log("Invoking " + url);
+            $.ajax({
+              url: url,
+              type: "POST",
+              data: JSON.stringify({"params": params}),
+              processData: false,
+              contentType: "application/json",
+              dataType: "json",
+              success: function(msg){
+                alert(msg.return);
+              },
+              error: function(msg, textStatus, errorThrown) {
+                 alert("Could not invoke method " + url + ": " 
+   + msg.statusText + "(" + msg.status +") "+ textStatus + " " + errorThrown );
+              }
+            });
+
             return false;
          });
 

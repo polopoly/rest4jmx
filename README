@@ -6,6 +6,9 @@ Developing and running
 
 1) jetty:run
 cd web
+MAVEN_OPTS="-javaagent:$JREBEL_HOME/jrebel.jar -Dmyproject.root=$PWD/../core -Dcom.sun.management.jmxremote=true"
+
+or without jrebel
 MAVEN_OPTS="-Dcom.sun.management.jmxremote=true" mvn jetty:run
 
 got to localhost:8080
@@ -22,3 +25,6 @@ GET 'http://localhost:8080/mbeans/java.lang:type=Memory/Verbose'
 
 Put an attribute value
 curl -v -i -H "Content-type: text/plain" -X PUT --data-binary "false" 'http://localhost:8080/mbeans/java.lang:type=Memory/Verbose'
+
+Invoke a method, possibly with parameters, here with an example when running mvn exec:exec
+curl -v -i -H "Content-type: application/json" -X POST --data-binary "{params: ['1','2']}" 'http://localhost:9998/rest4jmx/testdomain:name=testBean/ops/methodWithParams'

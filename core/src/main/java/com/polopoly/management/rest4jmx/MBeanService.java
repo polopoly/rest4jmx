@@ -41,6 +41,7 @@ import javax.management.MBeanParameterInfo;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.OperationsException;
 import javax.management.ReflectionException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -143,7 +144,7 @@ public class MBeanService
                 MBeanAttributeInfo ai = getAttributeInfo(name, n);
                 JSONObject att = new JSONObject();
                 att.put("name", n);
-                att.put("value", getAttributeValueAsJson(a.getValue()));
+                att.put("value", getValueAsJson(a.getValue()));
                 att.put("writable", ai.isWritable());
                 att.put("isBoolean", ai.isIs());
 
@@ -151,13 +152,16 @@ public class MBeanService
             }
 
             MBeanOperationInfo[] operations = info.getOperations();
-            List<String> ops = new ArrayList<String>();
+            List<JSONObject> ops = new ArrayList<JSONObject>();
 
             for (MBeanOperationInfo operation : operations) {
                 if (operationHasNoCollectionTypesInSignature(operation)) {
+                    JSONObject op = new JSONObject();
                     String[] signatureTypes = getSignatureForOperation(operation);
+                    String returnType = operation.getReturnType();
 
                     StringBuilder sb = new StringBuilder();
+                    sb.append(returnType + " ");
                     sb.append(operation.getName() + "(");
 
                     for (String type : signatureTypes) {
@@ -170,7 +174,11 @@ public class MBeanService
 
                     sb.append(")");
 
-                    ops.add(sb.toString());
+                    op.put("operation", sb.toString() );
+                    op.put("name", operation.getName() );
+                    op.put("returns", returnType);
+                    op.put("params", getValueAsJson(signatureTypes));
+                    ops.add(op);
                 }
             }
 
@@ -217,7 +225,7 @@ public class MBeanService
                                  @PathParam("attribute") String attribute,
                                  @QueryParam("callback") String callback,
                                  String value) throws JSONException {
-        System.err.println("DEBUG "+objectName + ":" + attribute +"="+value);
+        //System.err.println("DEBUG "+objectName + ":" + attribute +"="+value);
         MBeanServer server = getMBeanServer();
         try {
             value = value.trim();
@@ -270,6 +278,7 @@ public class MBeanService
                                         final @QueryParam("callback") String callback,
                                         final String requestBody)
     {
+        //System.err.println("DEBUG invoke with json " + requestBody);
         try {
             ObjectName name = new ObjectName(objectName);
             JSONArray paramsArray = new JSONArray();
@@ -283,8 +292,16 @@ public class MBeanService
             MBeanInfo info = server.getMBeanInfo(name);
 
             if (operationExists(info, operationName)) {
-                doInvoke(server, info, name, operationName, paramsArray);
-                return createOkResponse(callback);
+                Object oRet = doInvoke(server, info, name, operationName, paramsArray);
+          //      System.err.println("DEBUG ret " + oRet);
+                JSONObject ret = new JSONObject();
+                ret.put("name", objectName);
+                ret.put("operation", operationName); //XXX not perfect, hard do distinguish
+                ret.put("return", getValueAsJson(oRet));
+                return getResponse(ret, callback);
+
+            } else {
+                throw new OperationsException("No such method");
             }
         } catch (MalformedObjectNameException me) {
             LOG.log(Level.WARNING, "Malformed object name!", me);
@@ -292,15 +309,20 @@ public class MBeanService
         } catch (InstanceNotFoundException ne) {
             LOG.log(Level.WARNING, "Mbean not found!", ne);
             throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity("No such mbean '" + objectName + "'!").build());
-        } catch (Exception e) {
+        } catch(OperationsException ne) {
+            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).
+                                              entity("No operation " + operationName + " with params " +
+                                              requestBody     + " for " + objectName
+                                               + ": " + ne).build());
+        }
+        catch (Exception e) {
             LOG.log(Level.WARNING, "Error while invoking operation!", e);
             throw new WebApplicationException(Response.serverError().entity("Error while invoking operation '" + operationName + "'!").build());
         }
 
-        return createOperationNotFoundResponse(callback);
     }
 
-    private void doInvoke(final MBeanServer mbeanServer,
+    private Object doInvoke(final MBeanServer mbeanServer,
                           final MBeanInfo mbeanInfo,
                           final ObjectName objectName,
                           final String operationName,
@@ -309,26 +331,23 @@ public class MBeanService
                ReflectionException,
                MBeanException,
                JSONException,
-               ClassNotFoundException
+               ClassNotFoundException,
+               OperationsException
     {
         MBeanOperationInfo[] operations = mbeanInfo.getOperations();
 
         for (MBeanOperationInfo operation : operations) {
             if (operation.getName().equals(operationName) &&
                 operationHasNoCollectionTypesInSignature(operation) &&
+                // Match in length only
                 signatureMatchParameters(operation, paramsArray)) {
 
-                List<Object> arguments = new ArrayList<Object>();
-
-                if (paramsArray != null) {
-                    for (int i = 0; i < paramsArray.length(); i++) {
-                        arguments.add(paramsArray.get(i));
-                    }
-                }
-
-                mbeanServer.invoke(objectName, operationName, arguments.toArray(new Object[0]), getSignatureForOperation(operation));
+                List params = fitParametersToOperation(operation, paramsArray);
+                return mbeanServer.invoke(objectName, operationName, params.toArray(new Object[0]), 
+                                   getSignatureForOperation(operation));
             }
         }
+        throw new OperationsException("No method that fits params " + paramsArray);
     }
 
     private String[] getSignatureForOperation(final MBeanOperationInfo operationInfo)
@@ -343,7 +362,7 @@ public class MBeanService
     }
 
     private boolean signatureMatchParameters(final MBeanOperationInfo operationInfo,
-                                             final JSONArray paramsArray) throws JSONException
+        final JSONArray paramsArray) throws JSONException,ClassNotFoundException
     {
         int paramsArrayLength = (paramsArray != null) ? paramsArray.length() : 0;
         int operationInfoLength = operationInfo.getSignature().length;
@@ -351,17 +370,63 @@ public class MBeanService
         if (paramsArrayLength != operationInfoLength) {
             return false;
         }
-
-        if (paramsArray != null && paramsArray.length() > 0) {
-            for (int i = 0; i < paramsArray.length(); i++) {
-                if (!operationInfo.getSignature()[i].getType().equals(paramsArray.get(i).getClass().getCanonicalName())) {
-                    return false;
-                }
-            }
-        }
-
         return true;
     }
+    
+    private List fitParametersToOperation(final MBeanOperationInfo operationInfo,
+        final JSONArray paramsArray) throws OperationsException  {
+        List params = new ArrayList();
+        try {
+            int paramsArrayLength = (paramsArray != null) ? paramsArray.length() : 0;
+            int operationInfoLength = operationInfo.getSignature().length;
+
+            if (paramsArrayLength != operationInfoLength) {
+                throw new OperationsException("Wrong signatur, parameters not same length, was " + 
+                                              paramsArrayLength + " excpected " + operationInfoLength);
+            }
+
+            if (paramsArray != null && paramsArray.length() > 0) {
+                for (int i = 0; i < paramsArray.length(); i++) {
+                    Object param = paramsArray.get(i);
+                    Class targetType = getClassForType(operationInfo.getSignature()[i].getType());
+                    // Try type
+                    if (targetType.equals(param.getClass())) {
+                        params.add(param);
+                    }
+                    else {
+                        // Try valueOf Marshalling
+                        Object ret = marshallWithValueOf(targetType, param.toString());
+                        params.add(ret);
+                    }
+                }
+            }
+            // Just for safety
+            if(paramsArrayLength == params.size()) {
+                return params;
+            }
+            throw getMarshallOperationsException(null, paramsArray, operationInfo);
+        }
+        catch(ReflectionException ex) {
+            throw getMarshallOperationsException(ex, paramsArray, operationInfo);
+        }
+        catch(ClassNotFoundException ex) {
+            throw getMarshallOperationsException(ex, paramsArray, operationInfo);
+        }
+        catch(JSONException ex) {
+            throw getMarshallOperationsException(ex, paramsArray, operationInfo);
+        }
+    }
+    private OperationsException getMarshallOperationsException(Exception cause, JSONArray paramsArray, 
+                                                               MBeanOperationInfo operationInfo) {
+        OperationsException o =  new OperationsException("Could not marshal " + paramsArray + " to " + operationInfo.getSignature() 
+                                                         + ": " + cause.getMessage());
+        if(cause != null) {
+            o.initCause(cause);
+        }
+        return o;
+    }
+    
+    
 
     private boolean operationExists(final MBeanInfo mbeanInfo,
                                     final String operationName)
@@ -398,7 +463,7 @@ public class MBeanService
             JSONObject att = new JSONObject();
             att.put("name", mbean.toString());
             att.put("attribute", attribute);
-            att.put("value", getAttributeValueAsJson(getMBeanServer().getAttribute(mbean, attribute)));
+            att.put("value", getValueAsJson(getMBeanServer().getAttribute(mbean, attribute)));
             return att;
         } catch(InstanceNotFoundException ne) {
             throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).
@@ -411,7 +476,7 @@ public class MBeanService
         }
     }
 
-    private Object getAttributeValueAsJson(Object a) {
+    private Object getValueAsJson(Object a) {
         if(a == null)
                 return null;
         if (a.getClass().isArray()) {
@@ -422,6 +487,13 @@ public class MBeanService
            }
             return new JSONArray(list);
         }
+        else if(a instanceof List) {
+            return new JSONArray((List)a);
+        }
+        else if(a instanceof Map) {
+            return new JSONObject((Map)a);
+        }
+        
         return a;
     }
 
@@ -440,19 +512,22 @@ public class MBeanService
             if (ret != null) {
                 return ret;
             }
-
+            
             throw new InvalidAttributeValueException("Could not marshall " + value + " to type " + type);
+            // XXX handle RefEx better?
         } catch(ClassNotFoundException e) {
             throw new ReflectionException(e);
         }
     }
 
 
+    
     private Object marshallWithValueOf(Class typeClass, String value) throws ReflectionException {
         try {
             Method valueOf = typeClass.getMethod("valueOf", new Class[]{String.class});
             return valueOf.invoke(typeClass, value);
-        } catch(NoSuchMethodException ignore) {
+        } catch(NoSuchMethodException e) {
+            throw new ReflectionException(e);
         } catch (IllegalArgumentException e) {
             throw new ReflectionException(e);
         } catch (IllegalAccessException e) {
@@ -460,7 +535,6 @@ public class MBeanService
         } catch (InvocationTargetException e) {
             throw new ReflectionException(e);
         }
-        return null;
     }
 
     private Class getClassForType(String type) throws ClassNotFoundException  {
