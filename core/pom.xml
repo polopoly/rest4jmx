@@ -20,7 +20,9 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <groupId>com.polopoly.management</groupId>
     <artifactId>rest4jmx-core</artifactId>
+    <version>0.3-SNAPSHOT</version>
     <name>JSONP - JMX REST core service</name>
     <packaging>jar</packaging>
     <parent>
@@ -34,39 +36,49 @@
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-server</artifactId>
             <version>1.1.5</version>
+            <type>jar</type>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-json</artifactId>
             <version>1.1.5</version>
+            <type>jar</type>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.sun.grizzly</groupId>
             <artifactId>grizzly-servlet-webserver</artifactId>
-            <version>1.9.19-beta1</version>
+            <version>1.9.19</version>
+            <type>jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-client</artifactId>
             <version>1.1.5</version>
+            <type>jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.5</version>
+            <type>jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
             <version>2.0</version>
+            <type>jar</type>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>2.5</version>
+            <type>jar</type>
             <scope>provided</scope>
         </dependency>
     </dependencies>
