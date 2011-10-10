@@ -31,6 +31,7 @@
       <li>Get all attributes (with values) for an mbean</li>
       <li>Get a specific attribute value for an mbean</li>
       <li>Put a value on a specific attribute value for an mbean</li>
+      <li>Invoke a method on an mbean.</li>
     </ul>
     <p>The service either generates JSON data as application/json or JSONP data as application/x-javascript. To get JSONP use a callback parameter named "callback" or make sure the Accept header is set to application/x-javascript (if no callback parameter is given a callback will be done against the method named "callback").</p>
     <p>The latest version of rest4jmx is available at <a href="http://github.com/polopoly/rest4jmx">github</a>.</p>
@@ -50,13 +51,23 @@
     <p>URL: <tt>/mbeans/MBEAN_NAME[?callback=FUNCTION_NAME]</tt>, for example <a href="mbeans/java.lang:type=MemoryPool,name=PS%20Eden%20Space">mbeans/java.lang:type=MemoryPool,name=PS Eden Space</a></p>
     <p>Returns an mbean object containing the name of the mbean and an attribute object containing all attributes and their values, for example: 
 <pre>
-{"name":"java.lang:type=MemoryPool,name=PS Eden Space","attributes":{"Name":"PS Eden Space","Type":"HEAP","Valid":true},"operations":[{"operation":"long getThreadAllocatedBytes(long)","name":"getThreadAllocatedBytes","returns":"long","params":["long"]}] }
+{"name":"java.lang:type=MemoryPool,name=PS Eden Space",
+ "attributes":{"Name":"PS Eden Space",
+               "Type":"HEAP",
+               "Valid":true},
+ "operations":[{"operation":"long getThreadAllocatedBytes(long)",
+                "name":"getThreadAllocatedBytes",
+                "returns":"long",
+                "params":["long"]}] 
+}
 </pre></p>
     <h2>Get a specific attribute for an mbean</h2>
     <p>URL: <tt>mbeans/MBEAN_NAME/ATTRIBUTE_NAME[?callback=FUNCTION_NAME]</tt>, for example <a href="mbeans/java.lang:type=MemoryPool,name=PS%20Eden%20Space/Type">mbeans/java.lang:type=MemoryPool,name=PS%20Eden Space/Type</a></p>
     <p>Returns and attribute object with a value, for example:
       <pre>
-{"name":"java.lang:type=MemoryPool,name=PS Eden Space","attribute":"Type","value":"HEAP"})
+{"name":"java.lang:type=MemoryPool,name=PS Eden Space",
+ "attribute":"Type",
+ "value":"HEAP"})
 </pre>
    <h2>Put a value on a specific attribute value for an mbean</h2>
     <p>URL: <tt>mbeans/MBEAN_NAME/ATTRIBUTE_NAME[?callback=FUNCTION_NAME]</tt>, for example <a href="mbeans/java.lang:type=Memory/Verbose">mbeans/java.lang:type=Memory/Verbose</a></p>
