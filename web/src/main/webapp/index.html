@@ -62,6 +62,7 @@
 }
 </pre></p>
     <h2>Get a specific attribute for an mbean</h2>
+    <p>Only primitive values and their wrapper objects are supported. Otherwise toString will be used on the object.</p>
     <p>URL: <tt>mbeans/MBEAN_NAME/ATTRIBUTE_NAME[?callback=FUNCTION_NAME]</tt>, for example <a href="mbeans/java.lang:type=MemoryPool,name=PS%20Eden%20Space/Type">mbeans/java.lang:type=MemoryPool,name=PS%20Eden Space/Type</a></p>
     <p>Returns and attribute object with a value, for example:
       <pre>
@@ -70,6 +71,7 @@
  "value":"HEAP"})
 </pre>
    <h2>Put a value on a specific attribute value for an mbean</h2>
+    <p>Only primitive values and their wrapper objects are supported.</p>
     <p>URL: <tt>mbeans/MBEAN_NAME/ATTRIBUTE_NAME[?callback=FUNCTION_NAME]</tt>, for example <a href="mbeans/java.lang:type=Memory/Verbose">mbeans/java.lang:type=Memory/Verbose</a></p>
     <p>PUT a text value againts url above. For example to change the Verbose attribute to false with curl:</p>
     <pre>
@@ -106,10 +108,12 @@
          });
      </pre>
  <h2>Invoking a method on an mbean</h2>
+    <p>Only primitive values and their wrapper objects are supported as parameters. Returned objects may also be a List or Map with before mentioned types.</p>
     <p>URL: <tt>mbeans/MBEAN_NAME/ops/METHOD_NAME[?callback=FUNCTION_NAME]</tt>, for example <a href="mbeans/java.lang:type=Threading/ops/getThreadAllocatedBytes'">mbeans/java.lang:type=Threading/ops/getThreadAllocatedBytes'</a></p>
     <p>POST against a method, possibly with a list of simple types, for example:</p>
     <pre>
-      curl -v -i -H "Content-type: application/json" -X POST --data-binary "{'params': ['1']}" 'http://localhost:8080/mbeans/java.lang:type=Threading/ops/getThreadAllocatedBytes'
+      curl -v -i -H "Content-type: application/json" -X POST --data-binary "{'params': ['1']}" \
+      'http://localhost:8080/mbeans/java.lang:type=Threading/ops/getThreadAllocatedBytes'
 
     </pre>
      <p>The returned object will contain the name of the method and any returned value. Simple types and List and Maps with simple types should be handled.</p>
