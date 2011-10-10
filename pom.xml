@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
 /*
- * Copyright 2010 Polopoly AB (publ).
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
- -->
+* Copyright 2010 Polopoly AB (publ).
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -27,55 +27,55 @@
     <packaging>pom</packaging>
 
     <licenses>
-      <license>
-	<name>Apache License, Version 2.0</name>
-	<url>http://www.apache.org/licenses/LICENSE-2.0</url>
-	<distribution>repo</distribution>
-      </license>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
     </licenses>
 
     <scm>
-      <connection>scm:git:git://github.com/polopoly/rest4jmx.git</connection>
-      <developerConnection>scm:git:git@github.com:polopoly/rest4jmx.git</developerConnection>
+        <connection>scm:git:git://github.com/polopoly/rest4jmx.git</connection>
+        <developerConnection>scm:git:git@github.com:polopoly/rest4jmx.git</developerConnection>
     </scm>
-    
+
     <distributionManagement>
-      <repository>
-	<id>polopoly-product</id>
-	<name>Polopoly Product</name>
-	<url>http://maven.polopoly.com/nexus/content/repositories/polopoly-product</url>
-      </repository>
+        <repository>
+            <id>polopoly-product</id>
+            <name>Polopoly Product</name>
+            <url>http://maven.polopoly.com/nexus/content/repositories/polopoly-product</url>
+        </repository>
     </distributionManagement>
-    
+
     <modules>
-      <module>core</module>
-      <module>web</module>
+        <module>core</module>
+        <module>web</module>
     </modules> 
-   <build>
-      <plugins>
-	<plugin>
-          <artifactId>maven-assembly-plugin</artifactId>
-          <configuration>
-            <descriptorRefs>
-              <descriptorRef>project</descriptorRef>
-            </descriptorRefs>
-          </configuration>
-	</plugin>
-      </plugins>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>project</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <repositories>
-      <repository>
-        <id>maven2-repository.dev.java.net</id>
-        <name>Java.net Repository for Maven</name>
-        <url>http://download.java.net/maven/2/</url>
-        <layout>default</layout>
-      </repository>
-      <repository>
-        <id>maven-repository.dev.java.net</id>
-        <name>Java.net Maven 1 Repository (legacy)</name>
-        <url>http://download.java.net/maven/1</url>
-        <layout>legacy</layout>
-      </repository>
+        <repository>
+            <id>maven2-repository.dev.java.net</id>
+            <name>Java.net Repository for Maven</name>
+            <url>http://download.java.net/maven/2/</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <id>maven-repository.dev.java.net</id>
+            <name>Java.net Maven 1 Repository (legacy)</name>
+            <url>http://download.java.net/maven/1</url>
+            <layout>legacy</layout>
+        </repository>
     </repositories>
 </project>
