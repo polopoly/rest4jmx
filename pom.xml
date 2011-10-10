@@ -22,7 +22,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.polopoly.management</groupId>
     <artifactId>rest4jmx</artifactId>
-    <version>0.2</version>
+    <version>0.3</version>
     <name>JSONP - JMX REST service</name>
     <packaging>pom</packaging>
 
