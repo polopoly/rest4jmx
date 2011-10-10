@@ -22,10 +22,31 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.polopoly.management</groupId>
     <artifactId>rest4jmx</artifactId>
-    <version>0.3</version>
+    <version>0.3-SNAPSHOT</version>
     <name>JSONP - JMX REST service</name>
     <packaging>pom</packaging>
 
+    <licenses>
+      <license>
+	<name>Apache License, Version 2.0</name>
+	<url>http://www.apache.org/licenses/LICENSE-2.0</url>
+	<distribution>repo</distribution>
+      </license>
+    </licenses>
+
+    <scm>
+      <connection>scm:git:git://github.com/polopoly/rest4jmx.git</connection>
+      <developerConnection>scm:git:git@github.com:polopoly/rest4jmx.git</developerConnection>
+    </scm>
+    
+    <distributionManagement>
+      <repository>
+	<id>polopoly-product</id>
+	<name>Polopoly Product</name>
+	<url>http://maven.polopoly.com/nexus/content/repositories/polopoly-product</url>
+      </repository>
+    </distributionManagement>
+    
     <modules>
       <module>core</module>
       <module>web</module>
