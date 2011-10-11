@@ -138,11 +138,11 @@ $.fn.treeview = function(settings) {
 		toggle: function() {
 			var $this = $(this);
 			if($this.hasClass("domains")) {
-			    settings.url = BASE+"domains/" + this.id + "?callback=?",
+			    settings.url = BASE+"domains/" + encodeURIComponent(this.id) + "?callback=?",
 			    settings.treeTransform = mbeans;
 			}
 			if($this.hasClass("mbeans")) {
-			    settings.url = BASE + this.id + "?callback=?",
+			    settings.url = BASE + encodeURIComponent(this.id) + "?callback=?",
 			    settings.treeTransform = mbean;
 			}
 			if ($this.hasClass("hasChildren")) {

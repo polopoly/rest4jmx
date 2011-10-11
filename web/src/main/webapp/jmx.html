@@ -39,7 +39,8 @@
       }
    }
 
-    var BASE = "http://localhost:8080/mbeans/";
+//    var BASE = "http://localhost:8080/rest4jmx-web/mbeans/";
+    var BASE = "mbeans/";
     $(document).ready(function(){
         $("#black").treeview({
             url: BASE+"domains?callback=?",
@@ -49,7 +50,7 @@
             var input = $(this).prev();
             var value = input.attr("value");
             var mbeanAttr = input.attr("name");
-            var url = BASE + mbeanAttr + "?callback=?";
+            var url = BASE + encodeURIComponent(mbeanAttr) + "?callback=?";
             $.ajax({
               url: url,
               type: "PUT",
@@ -84,7 +85,7 @@
                 log("Field " + field.value);
                 params[i] = field.value; 
             });
-            var url = BASE + oper + "?callback=?";
+            var url = BASE + encodeURIComponent(oper) + "?callback=?";
             log("Invoking " + url);
             $.ajax({
               url: url,
