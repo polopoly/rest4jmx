@@ -57,6 +57,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -76,8 +77,10 @@ public class MBeanService
     private static final String OPERATION_PARAMETERS_PARAMETER_NAME = "params";
 
     private static final Logger LOG = Logger.getLogger(MBeanService.class.getName());
+    private static final String CLAZZ = MBeanService.class.getName();
 
     @Inject MBeanServerInstance mbeanServer;
+    @Context SecurityContext secContext;
 
     private boolean allowGlobalInvokes = true;
     private String invokeAllowedApplication = null;
@@ -117,6 +120,7 @@ public class MBeanService
         return Response.ok(new JSONWithPadding(o, callback)).build();
     }
 
+    
     @GET
     @Path("/domains")
     public Response getDomains(
@@ -131,8 +135,12 @@ public class MBeanService
 
     @GET
     @Path("/domains/{domain}")
-    public Response getMBeanNameForDomain(@PathParam("domain") String domain,
+    public Response getMBeanNamesForDomain(@PathParam("domain") String domain,
         @QueryParam("callback") String callback) throws JSONException {
+        if(LOG.isLoggable(Level.FINEST)) {
+            LOG.entering(CLAZZ, "getMBeanNamesForDomain", new String[]{domain, callback});
+        }
+        
         MBeanServer server = getMBeanServer();
         try {
             Set<ObjectName> names =server.queryNames(new ObjectName(domain + ":*"), null);
@@ -153,8 +161,17 @@ public class MBeanService
     @Path("/{objectName}")
     public Response getMBean(@PathParam("objectName") String objectName,
                                     @QueryParam("callback") String callback) throws JSONException {
+        
+        if(LOG.isLoggable(Level.FINEST)) {
+            LOG.entering(CLAZZ, "getMBean", new String[]{objectName, callback});
+        }
+        
         MBeanServer server = getMBeanServer();
         try {
+            boolean isUserAWriter = secContext.getUserPrincipal() != null ? 
+                                    secContext.isUserInRole("jmx_writer") :
+                                    true;
+            
             ObjectName name = new ObjectName(objectName);
             MBeanInfo info = server.getMBeanInfo(name);
             MBeanAttributeInfo[] attrInfos =  info.getAttributes();
@@ -171,7 +188,7 @@ public class MBeanService
                 JSONObject att = new JSONObject();
                 att.put("name", n);
                 att.put("value", getValueAsJson(a.getValue()));
-                att.put("writable", ai.isWritable());
+                att.put("writable", isUserAWriter ? ai.isWritable() : false);
                 att.put("isBoolean", ai.isIs());
 
                 attValues.put(n, att);
@@ -180,31 +197,33 @@ public class MBeanService
             MBeanOperationInfo[] operations = info.getOperations();
             List<JSONObject> ops = new ArrayList<JSONObject>();
 
-            for (MBeanOperationInfo operation : operations) {
-                if (operationHasNoCollectionTypesInSignature(operation)) {
-                    JSONObject op = new JSONObject();
-                    String[] signatureTypes = getSignatureForOperation(operation);
-                    String returnType = operation.getReturnType();
+            if(isUserAWriter) {
+                for (MBeanOperationInfo operation : operations) {
+                    if (operationHasNoCollectionTypesInSignature(operation)) {
+                        JSONObject op = new JSONObject();
+                        String[] signatureTypes = getSignatureForOperation(operation);
+                        String returnType = operation.getReturnType();
 
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(returnType + " ");
-                    sb.append(operation.getName() + "(");
+                        StringBuilder sb = new StringBuilder();
+                        sb.append(returnType + " ");
+                        sb.append(operation.getName() + "(");
 
-                    for (String type : signatureTypes) {
-                        sb.append(type).append(",");
+                        for (String type : signatureTypes) {
+                            sb.append(type).append(",");
+                        }
+
+                        if (signatureTypes.length > 0) {
+                            sb.deleteCharAt(sb.length() - 1);
+                        }
+
+                        sb.append(")");
+
+                        op.put("operation", sb.toString() );
+                        op.put("name", operation.getName() );
+                        op.put("returns", returnType);
+                        op.put("params", getValueAsJson(signatureTypes));
+                        ops.add(op);
                     }
-
-                    if (signatureTypes.length > 0) {
-                        sb.deleteCharAt(sb.length() - 1);
-                    }
-
-                    sb.append(")");
-
-                    op.put("operation", sb.toString() );
-                    op.put("name", operation.getName() );
-                    op.put("returns", returnType);
-                    op.put("params", getValueAsJson(signatureTypes));
-                    ops.add(op);
                 }
             }
 
@@ -233,6 +252,10 @@ public class MBeanService
     public Response getAttribute(@PathParam("objectName") String objectName,
                                         @PathParam("attribute") String attribute,
                                         @QueryParam("callback") String callback) throws JSONException {
+        if(LOG.isLoggable(Level.FINEST)) {
+            LOG.entering(CLAZZ, "getAttribute", new String[]{objectName, attribute, callback});
+        }
+        
         try {
             ObjectName name = new ObjectName(objectName);
             return getResponse(getAttributeAsJSON(name, attribute), callback);
@@ -251,6 +274,10 @@ public class MBeanService
                                  @PathParam("attribute") String attribute,
                                  @QueryParam("callback") String callback,
                                  String value) throws JSONException {
+        if(LOG.isLoggable(Level.FINEST)) {
+            LOG.entering(CLAZZ, "setAttribute", new String[]{objectName, attribute, value, callback});
+        }
+        
         //System.err.println("DEBUG "+objectName + ":" + attribute +"="+value);
         MBeanServer server = getMBeanServer();
         try {
@@ -305,6 +332,10 @@ public class MBeanService
                                         final String requestBody)
     {
         //System.err.println("DEBUG invoke with json " + requestBody);
+        if(LOG.isLoggable(Level.FINEST)) {
+            LOG.entering(CLAZZ, "invokeOperationPost", new String[]{objectName, operationName, requestBody, callback});
+        }
+        
         try {
             ObjectName name = new ObjectName(objectName);
             JSONArray paramsArray = new JSONArray();
