@@ -23,7 +23,7 @@
      * The ?callback parameter is added so that jQuery and rest4jmx will understand that I want JSONP, which is
      * cross-domain.
      */
-    var heapURL = "http://student.polopoly.com/rest4jmx/mbeans/java.lang:type=Memory/HeapMemoryUsage?callback=?";     
+    var heapURL = "mbeans/java.lang:type=Memory/HeapMemoryUsage?callback=?";     
     
     
     /* This function acts as the main drawing loop. It will parse the heap value from JMX, add it to our stack
