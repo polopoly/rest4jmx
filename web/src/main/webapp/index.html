@@ -26,28 +26,28 @@
     <h1>The rest4jmx service API</h1>
     <p>The rest4jmx is a simple service that exposes a Java MBeanServer as a restful API with JSON or JSONP as data protocol. With the service is is possible to:</p>
     <ul>
-      <li>List all domains (a domain is the domain part in an Object Name)</li>
-      <li>List all mbeans (by name) that is available in a domain</li>
-      <li>Get all attributes (with values) for an mbean</li>
-      <li>Get a specific attribute value for an mbean</li>
-      <li>Put a value on a specific attribute value for an mbean</li>
-      <li>Invoke a method on an mbean.</li>
+      <li><a href="#domains">List all domains (a domain is the domain part in an Object Name)</a></li>
+      <li><a href="#mbean">List all mbeans (by name) that is available in a domain</a></li>
+      <li><a href="#mbean">Get all attributes (with values) for an mbean</a></li>
+      <li><a href="#attr">Get a specific attribute value for an mbean</a></li>
+      <li><a href="#attr-put">Put a value on a specific attribute value for an mbean</a></li>
+      <li><a href="#invoke">Invoke a method on an mbean.</a></li>
     </ul>
     <p>The service either generates JSON data as application/json or JSONP data as application/x-javascript. To get JSONP use a callback parameter named "callback" or make sure the Accept header is set to application/x-javascript (if no callback parameter is given a callback will be done against the method named "callback").</p>
     <p>The latest version of rest4jmx is available at <a href="http://github.com/polopoly/rest4jmx">github</a>.</p>
     <h2>Examples</h2>
     <p>There are two examples available here.</p>
-    <p>The <a href="jmx.html">MBean Server Tree viewer</a> is both an example and a way to view which mbeans are available.</p>
+    <p>The <a href="jmx.html">MBean Server Tree viewer</a> is both an example and a way to view which mbeans are available. <b>Login as guest:guest or admin:admin if running the embedded Jetty.</b></p>
     <p>The <a href="demo.html">demo</a> shows how to use the API to plot a data sample.</p>
-    <h2>List domains</h2>
+    <a name="domains"><h2>List domains</h2>
     <p>URL: <tt>/mbeans/domains[?callback=FUNCTION_NAME]</tt>, for example <a href="mbeans/domains">mbeans/domains</a></p>
     <p>Returns an array of domain names, for example:
       <pre>["JMImplementation","com.sun.management","java.lang","java.util.logging"]</pre></p>
-    <h2>List mbeans for domain</h2>
+    <a name="mbeans"><h2>List mbeans for domain</h2>
     <p>URL: <tt>/mbeans/domains/DOMAIN[?callback=FUNCTION_NAME]</tt>, for example <a href="mbeans/domains/java.lang">mbeans/domains/java.lang</a></p>
     <p>Returns a domain object containing the domain name and a list of mbean names, for example: 
       <pre>{"domain":"java.lang","mbeans":["java.lang:type=MemoryPool,name=PS Eden Space"]}</pre></p>
-    <h2>Get all attributes (and values) and operations for an mbean</h2>
+    <a name="mbean"><h2>Get all attributes (and values) and operations for an mbean</h2>
     <p>URL: <tt>/mbeans/MBEAN_NAME[?callback=FUNCTION_NAME]</tt>, for example <a href="mbeans/java.lang:type=MemoryPool,name=PS%20Eden%20Space">mbeans/java.lang:type=MemoryPool,name=PS Eden Space</a></p>
     <p>Returns an mbean object containing the name of the mbean and an attribute object containing all attributes and their values, for example: 
 <pre>
@@ -61,7 +61,7 @@
                 "params":["long"]}] 
 }
 </pre></p>
-    <h2>Get a specific attribute for an mbean</h2>
+    <a name="attr"><h2>Get a specific attribute for an mbean</h2>
     <p>Only primitive values and their wrapper objects are supported. Otherwise toString will be used on the object.</p>
     <p>URL: <tt>mbeans/MBEAN_NAME/ATTRIBUTE_NAME[?callback=FUNCTION_NAME]</tt>, for example <a href="mbeans/java.lang:type=MemoryPool,name=PS%20Eden%20Space/Type">mbeans/java.lang:type=MemoryPool,name=PS%20Eden Space/Type</a></p>
     <p>Returns and attribute object with a value, for example:
@@ -70,7 +70,7 @@
  "attribute":"Type",
  "value":"HEAP"})
 </pre>
-   <h2>Put a value on a specific attribute value for an mbean</h2>
+   <a name="attr-put"><h2>Put a value on a specific attribute value for an mbean</h2>
     <p>Only primitive values and their wrapper objects are supported.</p>
     <p>URL: <tt>mbeans/MBEAN_NAME/ATTRIBUTE_NAME[?callback=FUNCTION_NAME]</tt>, for example <a href="mbeans/java.lang:type=Memory/Verbose">mbeans/java.lang:type=Memory/Verbose</a></p>
     <p>PUT a text value againts url above. For example to change the Verbose attribute to false with curl:</p>
@@ -107,7 +107,7 @@
               }
          });
      </pre>
- <h2>Invoking a method on an mbean</h2>
+     <a name="invoke"> <h2>Invoking a method on an mbean</h2>
     <p>Only primitive values and their wrapper objects are supported as parameters. Returned objects may also be a List or Map with before mentioned types.</p>
     <p>URL: <tt>mbeans/MBEAN_NAME/ops/METHOD_NAME[?callback=FUNCTION_NAME]</tt>, for example <a href="mbeans/java.lang:type=Threading/ops/getThreadAllocatedBytes'">mbeans/java.lang:type=Threading/ops/getThreadAllocatedBytes'</a></p>
     <p>POST against a method, possibly with a list of simple types, for example:</p>

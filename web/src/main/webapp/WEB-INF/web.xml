@@ -30,20 +30,51 @@
             <param-value>com.polopoly.management.rest4jmx</param-value>
         </init-param>
     </servlet>
-  	<!-- 
-    <servlet>
-        <servlet-name>hello-atex</servlet-name>
-        <servlet-class>com.atex.blogping.HelloAtexServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>hello-atex</servlet-name>
-        <url-pattern>hello-atex</url-pattern>
-    </servlet-mapping>
-     -->
 
     <servlet-mapping>
         <servlet-name>jersey</servlet-name>
         <url-pattern>/mbeans/*</url-pattern>
     </servlet-mapping>
+    
+    <security-constraint> 
+        <web-resource-collection> 
+            <web-resource-name>Write Protected Area</web-resource-name> 
+            <url-pattern>/mbeans/*</url-pattern> 
+            <http-method>PUT</http-method>
+            <http-method>POST</http-method>
+        </web-resource-collection> 
+        <auth-constraint> 
+            <role-name>jmx_writer</role-name> 
+        </auth-constraint> 
+        <user-data-constraint> 
+            <transport-guarantee>NONE</transport-guarantee> 
+        </user-data-constraint> 
+    </security-constraint> 
+    <security-constraint> 
+        <web-resource-collection> 
+            <web-resource-name>Read Protected Area</web-resource-name> 
+            <url-pattern>/mbeans/*</url-pattern> 
+            <url-pattern>/jmx.html</url-pattern> 
+            <http-method>GET</http-method>
+        </web-resource-collection> 
+        <auth-constraint> 
+            <role-name>jmx_reader</role-name> 
+        </auth-constraint> 
+        <user-data-constraint> 
+            <transport-guarantee>NONE</transport-guarantee> 
+        </user-data-constraint> 
+    </security-constraint> 
+
+    <login-config> 
+        <auth-method>BASIC</auth-method> 
+        <realm-name>JMX Realm</realm-name> 
+    </login-config> 
+    
+    <security-role> 
+        <role-name>jmx_reader</role-name>
+    </security-role> 
+    <security-role> 
+        <role-name>jmx_writer</role-name>
+    </security-role> 
 
 </web-app>
