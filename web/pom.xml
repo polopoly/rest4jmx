@@ -67,6 +67,12 @@
                             <value>true</value>
                         </systemProperty>
                     </systemProperties>
+                    <userRealms>
+                        <userRealm implementation="org.mortbay.jetty.security.HashUserRealm">
+                            <name>JMX Realm</name>
+                            <config>src/test/resources/jetty-realm.properties</config>
+                        </userRealm>
+                   </userRealms>
                 </configuration>
             </plugin>
             <plugin>

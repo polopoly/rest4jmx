@@ -33,7 +33,11 @@ mbean = function(response) {
     var ret = [];
     $.each(response.attributes, function(attrName, attr) {
         log("Attr " + attr.name);
-        var valueNode = attr.writable ?   "<input class='attribute' type='text' name='" +response.name + "/" + attr.name + "' value='" +attr.value + "'/><a class='attribute' href=''><img src='Action-db-update-icon.png'></a></input>" : attr.value;
+        var valueNode = attr.writable ?
+            "<input class='attribute' type='text' name='" +
+            encodeURIComponent(response.name) + "/" +
+            encodeURIComponent(attr.name) + "' value='" + attr.value +
+            "'/><a class='attribute' href=''><img src='Action-db-update-icon.png'></a></input>" : attr.value;
         ret[ret.length] = {"text": attr.name + " : " + valueNode,
 		           "expanded": false,
 		           "hasChildren": false,
@@ -48,8 +52,10 @@ mbean = function(response) {
             operNode += "<input type='text'>";
         });
         operNode += "</span>";
-        operNode += "<a class='operation' name='" + response.name + "/ops/"+
-            op.name + "' href=''><img src='Action-db-update-icon.png'></a>";
+        operNode += "<a class='operation' name='" +
+            encodeURIComponent(response.name) + "/ops/" +
+            encodeURIComponent(op.name) +
+            "' href=''><img src='Action-db-update-icon.png'></a>";
         ret[ret.length] = {"text": op.operation + " : " + operNode,
 		           "expanded": false,
 		           "hasChildren": false,
@@ -138,11 +144,11 @@ $.fn.treeview = function(settings) {
 		toggle: function() {
 			var $this = $(this);
 			if($this.hasClass("domains")) {
-			    settings.url = BASE+"domains/" + this.id + "?callback=?",
+			    settings.url = BASE+"domains/" + encodeURIComponent(this.id) + "?callback=?",
 			    settings.treeTransform = mbeans;
 			}
 			if($this.hasClass("mbeans")) {
-			    settings.url = BASE + this.id + "?callback=?",
+			    settings.url = BASE + encodeURIComponent(this.id) + "?callback=?",
 			    settings.treeTransform = mbean;
 			}
 			if ($this.hasClass("hasChildren")) {

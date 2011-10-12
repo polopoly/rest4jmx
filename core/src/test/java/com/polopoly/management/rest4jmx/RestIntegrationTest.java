@@ -34,7 +34,7 @@ public class RestIntegrationTest {
         ClientConfig cc = new DefaultClientConfig();
         cc.getClasses().add(JAXBContextResolver.class);
         Client c = Client.create(cc);
-        r = c.resource(Main.BASE_URI);
+        r = c.resource(MainTest.BASE_URI);
         JSONObject jo = r.path(TESTDOMAIN_NAME_TEST_BEAN + "/MyAttr").type("text/plain").
         put(JSONObject.class, DEFAULT);
     }
