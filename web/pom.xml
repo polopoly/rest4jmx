@@ -68,7 +68,8 @@
                         </systemProperty>
                     </systemProperties>
                     <userRealms>
-                        <userRealm implementation="org.mortbay.jetty.security.HashUserRealm">
+                        <userRealm 
+			   implementation="org.mortbay.jetty.security.HashUserRealm">
                             <name>JMX Realm</name>
                             <config>src/test/resources/jetty-realm.properties</config>
                         </userRealm>
@@ -87,4 +88,22 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+      <profile>
+	<id>web-fragment</id>
+	<build>
+          <plugins>
+	    <plugin>
+	      <groupId>org.apache.maven.plugins</groupId>
+	      <artifactId>maven-war-plugin</artifactId>
+	      <configuration>
+		<!-- Webfragment -->
+		<warSourceExcludes>WEB-INF/web.xml</warSourceExcludes>
+		<failOnMissingWebXml>false</failOnMissingWebXml>
+	      </configuration>
+	    </plugin>
+          </plugins>
+	</build>
+      </profile>
+    </profiles>
 </project>

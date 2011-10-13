@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<web-fragment metadata-complete="true" version="3.0"
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-fragment_3_0.xsd">
+  <display-name>rest4jmx</display-name>
+
+  <servlet>
+    <servlet-name>jersey</servlet-name>
+    <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+    <init-param>
+      <param-name>com.sun.jersey.config.property.packages</param-name>
+      <param-value>com.polopoly.management.rest4jmx</param-value>
+    </init-param>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>jersey</servlet-name>
+    <url-pattern>/mbeans/*</url-pattern>
+  </servlet-mapping> 
+</web-fragment>
