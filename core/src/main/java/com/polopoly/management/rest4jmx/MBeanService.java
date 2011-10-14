@@ -278,7 +278,6 @@ public class MBeanService
             LOG.entering(CLAZZ, "setAttribute", new String[]{objectName, attribute, value, callback});
         }
         
-        //System.err.println("DEBUG "+objectName + ":" + attribute +"="+value);
         MBeanServer server = getMBeanServer();
         try {
             value = value.trim();
@@ -331,7 +330,6 @@ public class MBeanService
                                         final @QueryParam("callback") String callback,
                                         final String requestBody)
     {
-        //System.err.println("DEBUG invoke with json " + requestBody);
         if(LOG.isLoggable(Level.FINEST)) {
             LOG.entering(CLAZZ, "invokeOperationPost", new String[]{objectName, operationName, requestBody, callback});
         }

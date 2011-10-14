@@ -39,6 +39,13 @@
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
+       <dependency>
+            <groupId>com.polopoly.management</groupId>
+            <artifactId>rest4jmx-core</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>javax.xml.stream</groupId>
             <artifactId>stax-api</artifactId>
@@ -56,24 +63,97 @@
     </dependencies>
     <build>
         <plugins>
-            <plugin>
+	  <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>surefire-it</id>
+                <phase>integration-test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+                <configuration>
+                  <includes>
+                    <include>**/*IT.java</include>
+                  </includes>
+		</configuration>
+	      </execution>
+	    </executions>
+	  </plugin>
+	  
+          <plugin>
                 <groupId>org.mortbay.jetty</groupId>
                 <artifactId>maven-jetty-plugin</artifactId>
                 <version>6.1.26</version>
                 <configuration>
-                    <systemProperties>
-                        <systemProperty>
-                            <name>com.sun.management.jmxremote</name>
-                            <value>true</value>
-                        </systemProperty>
-                    </systemProperties>
-                    <userRealms>
-                        <userRealm implementation="org.mortbay.jetty.security.HashUserRealm">
-                            <name>JMX Realm</name>
-                            <config>src/test/resources/jetty-realm.properties</config>
-                        </userRealm>
-                   </userRealms>
+		  <overrideWebXml>${basedir}/src/test/resources/web.xml</overrideWebXml>
+		  <useTestClasspath>true</useTestClasspath>
+<!--
+		  <webAppConfig>
+		    <overrideDescriptor>${basedir}/src/test/resources/web.xml</overrideDescriptor>
+		    <extraClasspath>${basedir}/target/test-classes/</extraClasspath>
+		  </webAppConfig>-->
+                  <systemProperties>
+                    <systemProperty>
+                      <name>com.sun.management.jmxremote</name>
+                      <value>true</value>
+                    </systemProperty>
+                  </systemProperties>
+                  <userRealms>
+                    <userRealm implementation="org.mortbay.jetty.security.HashUserRealm">
+                      <name>JMX Realm</name>
+                      <config>${basedir}/src/test/resources/jetty-realm.properties</config>
+                    </userRealm>
+                  </userRealms>
                 </configuration>
+		<dependencies>
+<!--
+		  <dependency>
+		    <groupId>com.polopoly.management</groupId>
+		    <artifactId>rest4jmx-core</artifactId>
+		    <version>${project.version}</version>
+		    <type>test-jar</type>
+		    <scope>test</scope>
+		  </dependency>
+-->
+<!--
+		  <dependency>
+		    <groupId>com.sun.jersey</groupId>
+		    <artifactId>jersey-client</artifactId>
+		    <version>1.1.5</version>
+		    <type>jar</type>
+		    <scope>test</scope>
+		  </dependency>
+-->
+		</dependencies>
+		<executions>
+		  <execution>
+		    <id>start-jetty</id>
+		    <phase>pre-integration-test</phase>
+		    <goals>
+		      <goal>run</goal>
+		    </goals>
+		    <configuration>
+		      <scanIntervalSeconds>0</scanIntervalSeconds>
+		      <daemon>true</daemon>
+		      <stopPort>8005</stopPort>
+		      <stopKey>STOP</stopKey>
+		    </configuration>
+		  </execution>
+		<execution>
+		    <id>stop-jetty</id>
+		    <phase>post-integration-test</phase>
+		    <goals>
+		      <goal>stop</goal>
+		    </goals>
+		    <configuration>
+		      <daemon>true</daemon>
+		      <stopPort>8005</stopPort>
+		      <stopKey>STOP</stopKey>
+		    </configuration>
+		  </execution>
+		</executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
