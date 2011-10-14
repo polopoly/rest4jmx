@@ -89,11 +89,6 @@
                 <configuration>
 		  <overrideWebXml>${basedir}/src/test/resources/web.xml</overrideWebXml>
 		  <useTestClasspath>true</useTestClasspath>
-<!--
-		  <webAppConfig>
-		    <overrideDescriptor>${basedir}/src/test/resources/web.xml</overrideDescriptor>
-		    <extraClasspath>${basedir}/target/test-classes/</extraClasspath>
-		  </webAppConfig>-->
                   <systemProperties>
                     <systemProperty>
                       <name>com.sun.management.jmxremote</name>
@@ -108,24 +103,6 @@
                   </userRealms>
                 </configuration>
 		<dependencies>
-<!--
-		  <dependency>
-		    <groupId>com.polopoly.management</groupId>
-		    <artifactId>rest4jmx-core</artifactId>
-		    <version>${project.version}</version>
-		    <type>test-jar</type>
-		    <scope>test</scope>
-		  </dependency>
--->
-<!--
-		  <dependency>
-		    <groupId>com.sun.jersey</groupId>
-		    <artifactId>jersey-client</artifactId>
-		    <version>1.1.5</version>
-		    <type>jar</type>
-		    <scope>test</scope>
-		  </dependency>
--->
 		</dependencies>
 		<executions>
 		  <execution>
@@ -167,4 +144,22 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+      <profile>
+	<id>web-fragment</id>
+	<build>
+          <plugins>
+	    <plugin>
+	      <groupId>org.apache.maven.plugins</groupId>
+	      <artifactId>maven-war-plugin</artifactId>
+	      <configuration>
+		<!-- Webfragment -->
+		<warSourceExcludes>WEB-INF/web.xml</warSourceExcludes>
+		<failOnMissingWebXml>false</failOnMissingWebXml>
+	      </configuration>
+	    </plugin>
+          </plugins>
+	</build>
+      </profile>
+    </profiles>
 </project>
